@@ -14,3 +14,12 @@ Thus, a dummy implementation of HAL functions can be linked to the firmware, all
 
 When compiling for the Pico, the pico-core directory contains implementations of the HAL functions that will call the corresponding pico-sdk functiosn for GPIO, I2C, etc. These, and ```main.c``` will link to the firmware library.
 
+## Building
+From the root of the repository:
+```
+mkdir build && cd build
+cmake ..
+make
+```
+
+This will compile the full firmware and create a hex file which you can then flash to the Pico.
