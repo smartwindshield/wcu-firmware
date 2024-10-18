@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(PICO_BOARD pico_w)
 
 # Initialize Pico SDK
 include(pico_sdk_import.cmake)
@@ -13,6 +14,7 @@ pico_sdk_init()
 # This will link to the Pico main.c implementation OR unit tests
 add_library(wcu_firmware
     firmware/src/led_controller.c
+    firmware/src/comms/bluetooth.c
 )
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include
@@ -22,14 +24,26 @@ target_include_directories(wcu_firmware PRIVATE
 add_executable(wcu_firmware_pico
     core-pico/src/main.c
     core-pico/src/HAL_GPIO_pico.c
+    core-pico/src/HAL_BT_pico.c
 )
 target_include_directories(wcu_firmware_pico PRIVATE 
     firmware/include
     HAL/include
+    core-pico/include
 )
 
 # Link Pico executable with firmware library and Pico stdlib
-target_link_libraries(wcu_firmware_pico wcu_firmware pico_stdlib)
+target_link_libraries(wcu_firmware_pico 
+    wcu_firmware
+    # Pico Standard Library stuff:
+    pico_stdlib
+    pico_btstack_ble
+    pico_btstack_cyw43
+    pico_cyw43_arch_none
+)
+
+# Generate our Bluetooth stuff
+pico_btstack_make_gatt_header(wcu_firmware_pico PRIVATE "${CMAKE_CURRENT_LIST_DIR}/core-pico/smartwindshield-bt.gatt")
 
 # Generate hex file
 pico_add_extra_outputs(wcu_firmware_pico)
