@@ -96,7 +96,10 @@ void HAL_BT_Init(uint32_t heartbeatPeriod) {
         // TODO: Do something with this
     }
 
-    att_server_init(profile_data, att_read_callback, att_write_callback);    
+    l2cap_init();
+    sm_init();
+
+    att_server_init(profile_data, att_read_callback, att_write_callback);
 
     // inform about BTstack state
     hci_event_callback_registration.callback = &packet_handler;
