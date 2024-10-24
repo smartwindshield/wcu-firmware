@@ -24,6 +24,7 @@ target_include_directories(wcu_firmware PRIVATE
 add_executable(wcu_firmware_pico
     core-pico/src/main.c
     core-pico/src/HAL_GPIO_pico.c
+    core-pico/src/HAL_I2C_pico.c
     core-pico/src/HAL_BT_pico.c
 )
 target_include_directories(wcu_firmware_pico PRIVATE 
@@ -40,6 +41,7 @@ target_link_libraries(wcu_firmware_pico
     pico_btstack_ble
     pico_btstack_cyw43
     pico_cyw43_arch_none
+    hardware_i2c
 )
 
 # Generate our Bluetooth stuff
