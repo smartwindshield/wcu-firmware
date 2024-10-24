@@ -5,3 +5,7 @@ void LEDController_Init(void) {
     // Example usage of initializing a HAL module
     HAL_GPIO_Init();
 }
+
+void LEDController_Update(void) {
+    // TODO
+}
