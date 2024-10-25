@@ -1,4 +1,5 @@
 #include "sensors/sensors_controller.h"
+#include "../../firmware/include/sensors/gps.h"
 
 #include "HAL_I2C.h"
 
