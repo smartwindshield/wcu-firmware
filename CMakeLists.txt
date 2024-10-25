@@ -45,8 +45,8 @@ target_link_libraries(wcu_firmware_pico
     hardware_i2c
 )
 
-# Generate our Bluetooth stuff
-pico_btstack_make_gatt_header(wcu_firmware_pico PRIVATE "${CMAKE_CURRENT_LIST_DIR}/core-pico/smartwindshield-bt.gatt")
+# Generate our GATT header (for Bluetooth LE)
+pico_btstack_make_gatt_header(wcu_firmware PRIVATE "${CMAKE_CURRENT_LIST_DIR}/firmware/smartwindshield-bt.gatt")
 
 # Generate hex file
 pico_add_extra_outputs(wcu_firmware_pico)
