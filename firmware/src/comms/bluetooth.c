@@ -22,9 +22,15 @@ static const char* DEVICE_NAME = "SmartWindshield";
 static const uint16_t CHARACTERISTIC_DRIVER_HEIGHT = ATT_CHARACTERISTIC_90E4BA9D_227F_41A6_8D10_6D8187F4A770_01_VALUE_HANDLE;
 static const uint16_t CHARACTERISTIC_WINDSHIELD_LENGTH = ATT_CHARACTERISTIC_B98EF484_35F0_4DE5_BC1D_8F54C5733855_01_VALUE_HANDLE;
 static const uint16_t CHARACTERISTIC_WINDSHIELD_HEIGHT = ATT_CHARACTERISTIC_CAE35C83_85EA_450F_9CD5_60FC4C3F2867_01_VALUE_HANDLE;
+static const uint16_t CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y = ATT_CHARACTERISTIC_737E235A_CF4C_4BDE_B223_6E6A1AEA6531_01_VALUE_HANDLE;
+static const uint16_t CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X = ATT_CHARACTERISTIC_192D6EE3_89FF_4E35_B811_A96A1DA3E55C_01_VALUE_HANDLE;
+static const uint16_t CHARACTERISTIC_WINDSHIELD_ANGLE = ATT_CHARACTERISTIC_87483780_274B_4D18_82E8_246FBC163207_01_VALUE_HANDLE;
 static const size_t CHARACTERISTIC_SIZE_DRIVER_HEIGHT = sizeof(uint16_t);
 static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_LENGTH = sizeof(uint16_t);
 static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_HEIGHT = sizeof(uint16_t);
+static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_Y = sizeof(uint16_t);
+static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_X = sizeof(uint16_t);
+static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_ANGLE = sizeof(uint16_t);
 
 void BluetoothComms_Init(void) {
     HAL_BT_Init(DEVICE_NAME, profile_data);
@@ -35,4 +41,38 @@ void BluetoothComms_Init(void) {
                                   CHARACTERISTIC_SIZE_WINDSHIELD_LENGTH);
     HAL_BT_RegisterCharacteristic(CHARACTERISTIC_WINDSHIELD_HEIGHT,
                                   CHARACTERISTIC_SIZE_WINDSHIELD_HEIGHT);
+    HAL_BT_RegisterCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y,
+                                  CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_Y);
+    HAL_BT_RegisterCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X,
+                                  CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_X);
+    HAL_BT_RegisterCharacteristic(CHARACTERISTIC_WINDSHIELD_ANGLE,
+                                  CHARACTERISTIC_SIZE_WINDSHIELD_ANGLE);
+}
+
+uint32_t BluetoothComms_GetWindshieldLength(void) {
+    uint32_t length;
+
+    HAL_BT_GetCharacteristic(CHARACTERISTIC_WINDSHIELD_LENGTH, (uint8_t*) &length);
+
+    return length;
+}
+
+uint32_t BluetoothComms_GetWindshieldHeight(void) {
+    uint32_t height;
+
+    HAL_BT_GetCharacteristic(CHARACTERISTIC_WINDSHIELD_HEIGHT, (uint8_t*) &height);
+
+    return height;
+}
+
+Vector3 BluetoothComms_GetUserWindshieldDistance(void) {
+    Vector3 vec;
+
+    HAL_BT_GetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X, 
+                             (uint8_t*) &vec.x);
+    HAL_BT_GetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y, 
+                             (uint8_t*) &vec.y);
+    HAL_BT_GetCharacteristic(CHARACTERISTIC_SIZE_DRIVER_HEIGHT, (uint8_t*) &vec.z);
+
+    return vec;
 }

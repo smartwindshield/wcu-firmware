@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 // Needs to be larger than the biggest ATT_CHARACTERISTIC_.... value from GATT header
-#define HAL_BT_MAX_CHARACTERISTICS     24
+#define HAL_BT_MAX_CHARACTERISTICS     32
 #define HAL_BT_MAX_CHARACTERISTIC_SIZE 4
 
 /**

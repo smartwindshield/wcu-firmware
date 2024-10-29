@@ -17,6 +17,7 @@
 // Bluetooth LE Limitation
 #define MAX_ADVERTISEMENT_DATA_SIZE 31
 
+
 static const uint8_t ADV_DATA_SUFFIX[] = {
     0x03, BLUETOOTH_DATA_TYPE_COMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS, 0x1a, 0x18,
 };
