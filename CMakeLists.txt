@@ -18,9 +18,9 @@ add_library(wcu_firmware
     firmware/src/led_controller.c
     firmware/src/comms/bluetooth.c
     firmware/src/sensors/sensors_controller.c
-    #firmware/src/sensors/barometer.c
-    #firmware/src/sensors/gps.c
-    #firmware/src/sensors/power_delivery.c
+    firmware/src/sensors/barometer.c
+    firmware/src/sensors/gps.c
+    firmware/src/sensors/power_delivery.c
 )
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include

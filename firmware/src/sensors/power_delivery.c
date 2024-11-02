@@ -1,7 +1,6 @@
-#include "power_delivery.h"
+#include "sensors/power_delivery.h"
 #include "HAL_GPIO.h"
-#include <stdio.h>
-#include "pico/stdlib.h"
+#include <stdint.h>
 #include "HAL_I2C.h"
 
 #define I2C_PORT i2c0
@@ -14,5 +13,4 @@ void PowerDeliveryDataUpdate(uint8_t powerDeliveryData[]){
 
     HAL_I2C_Read(HAL_I2C_BUS_0, GPS_I2C_ADDRESS, powerDeliveryData, 256);
 
-    return 0;
 }
