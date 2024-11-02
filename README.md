@@ -1,6 +1,8 @@
 # wcu-firmware
 Windshield Control Unit (WCU) firmware
 
+**Uses submodules, clone recursively**
+
 ## Structure
 There are three parts to the firmware:
 
