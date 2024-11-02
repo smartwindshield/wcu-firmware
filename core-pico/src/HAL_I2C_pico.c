@@ -1,6 +1,10 @@
 #include "HAL_I2C.h"
+#include "HAL_GPIO.h"
+
+#include "HAL_GPIO_pico.h"
 
 #include "hardware/i2c.h"
+#include "hardware/gpio.h"
 
 static const unsigned int DEFAULT_TIMEOUT_US = 1000;
 
@@ -17,6 +21,12 @@ static inline i2c_inst_t* GetI2CInstance(HAL_I2C_Bus bus) {
 
 void HAL_I2C_Init(HAL_I2C_Bus bus, int baud_rate) {
     i2c_init(GetI2CInstance(bus), baud_rate);
+    
+    // Set Pin Assignments
+    gpio_set_function(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA], GPIO_FUNC_I2C);
+    gpio_set_function(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SCL], GPIO_FUNC_I2C);
+    gpio_pull_up(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA]);
+    gpio_pull_up(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA]);
 }
 
 void HAL_I2C_Write(HAL_I2C_Bus bus, uint8_t dest_addr, uint8_t *buffer, int buffer_len) {
