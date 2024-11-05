@@ -11,6 +11,7 @@ project(wcu_firmware)
 pico_sdk_init()
 
 add_subdirectory(pi-pico-adafruit-neopixels/pico_neopixels)
+add_subdirectory(SparkFun_u-blox_GNSS_Pico_library)
 
 # Create a library containing the WCU firmware
 # This will link to the Pico main.c implementation OR unit tests
@@ -19,18 +20,20 @@ add_library(wcu_firmware
     firmware/src/comms/bluetooth.c
     firmware/src/sensors/sensors_controller.c
     firmware/src/sensors/barometer.c
-    firmware/src/sensors/gps.c
+    firmware/src/sensors/gps.cpp
     firmware/src/sensors/power_delivery.c
 )
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include
     HAL/include
+    SparkFun_u-blox_GNSS_Pico_library/src
 )
 
 add_executable(wcu_firmware_pico
     core-pico/src/main.c
     core-pico/src/HAL_GPIO_pico.c
     core-pico/src/HAL_I2C_pico.c
+    core-pico/src/HAL_CPP_I2C_pico.cpp
     core-pico/src/HAL_BT_pico.c
     core-pico/src/HAL_Neopixels_pico.cpp
 )
@@ -39,12 +42,14 @@ target_include_directories(wcu_firmware_pico PRIVATE
     HAL/include
     core-pico/include
     pi-pico-adafruit-neopixels/pico_neopixels/include
+    SparkFun_u-blox_GNSS_Pico_library/src
 )
 
 # Link Pico executable with firmware library and Pico stdlib
 target_link_libraries(wcu_firmware_pico 
     wcu_firmware
     pico_neopixel
+    sparkfun_ublox_gnss_pico 
     # Pico Standard Library stuff:
     pico_stdlib
     pico_btstack_ble
