@@ -15,6 +15,19 @@ void GPS_Init(void) {
     TwoWire twoWireImpl = HAL_CPP_I2C_GetTwoWireImpl();
 
     myGNSS.begin(twoWireImpl);
+    myGNSS.setI2CAddress(GPS_I2C_ADDRESS);
+    myGNSS.setI2COutput(COM_TYPE_UBX);
+    myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT);
+
+    long lat = myGNSS.getLatitude();
+
+    long lon = myGNSS.getLongitude();
+
+    printf("Latitude: %ld\n", lat);
+
+    printf("Longitude: %ld\n", lon);
+
+    return;
 
     // do stuff with gnss
 }
