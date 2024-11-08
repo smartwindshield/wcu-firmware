@@ -7,6 +7,6 @@
  * Get the default Arduino TwoWire implementation for use with 
  * the u-blox ported library
  */
-TwoWire HAL_CPP_I2C_GetTwoWireImpl(void);
+PicoTwoWire HAL_CPP_I2C_GetTwoWireImpl(void);
 
 #endif // HAL_CPP_I2C_HPP

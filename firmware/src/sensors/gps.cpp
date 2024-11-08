@@ -1,26 +1,42 @@
 #include "sensors/gps.h"
-#include "HAL_GPIO.h"
-#include <stdio.h>
-#include "HAL_I2C.h"
+
+#include "ArduinoToPico.hpp"
 #include "HAL_CPP_I2C.hpp"
 
 #include "SparkFun_u-blox_GNSS_Pico_Library.hpp"
 
-#define GPS_I2C_ADDRESS 0x42
-
-static SFE_UBLOX_GNSS myGNSS;
+static PicoPrintfStream debuggerStream;
+static PicoTwoWire twoWireImpl;
+static SFE_UBLOX_GNSS gnss;
 
 void GPS_Init(void) {
-    // Try to connect
-    TwoWire twoWireImpl = HAL_CPP_I2C_GetTwoWireImpl();
+    int32_t alt;
+    twoWireImpl = HAL_CPP_I2C_GetTwoWireImpl();
 
-    myGNSS.begin(twoWireImpl);
+    debuggerStream.println("[GPS]: Initializing.");
 
-    // do stuff with gnss
+    // Enable the ublox library debugging and connect to GPS chip
+    gnss.enableDebugging(debuggerStream);
+    gnss.begin(twoWireImpl);
+
+    // GPS chip communication initialized at this point
+
+    alt = gnss.getAltitude();
+    debuggerStream.print("[GPS]: GPS Reports an altitude of ");
+    debuggerStream.println(alt);
 }
 
-void GPSDataUpdate(uint8_t gpsData[]){
+void GPS_Update(void){
+    // TODO: Determine if GPS data caching is something we need to implement or not.
+    // Don't want to flood the I2C bus everytime GPS_GetData() is called
+}
 
-    //HAL_I2C_Read(HAL_I2C_BUS_0, (uint8_t) GPS_I2C_ADDRESS, gpsData, 256);
+GPSData GPS_GetData(void) {
+    GPSData data;
 
+    data.altitude = gnss.getAltitude();
+    data.latitude = gnss.getLatitude();
+    data.longitude = gnss.getLongitude();
+
+    return data;
 }

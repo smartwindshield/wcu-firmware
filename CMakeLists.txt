@@ -26,7 +26,7 @@ add_library(wcu_firmware
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include
     HAL/include
-    SparkFun_u-blox_GNSS_Pico_library/src
+    SparkFun_u-blox_GNSS_Pico_library/include
 )
 
 add_executable(wcu_firmware_pico
@@ -36,13 +36,14 @@ add_executable(wcu_firmware_pico
     core-pico/src/HAL_CPP_I2C_pico.cpp
     core-pico/src/HAL_BT_pico.c
     core-pico/src/HAL_Neopixels_pico.cpp
+    core-pico/src/HAL_Debug_pico.c
 )
 target_include_directories(wcu_firmware_pico PRIVATE 
     firmware/include
     HAL/include
     core-pico/include
     pi-pico-adafruit-neopixels/pico_neopixels/include
-    SparkFun_u-blox_GNSS_Pico_library/src
+    SparkFun_u-blox_GNSS_Pico_library/include
 )
 
 # Link Pico executable with firmware library and Pico stdlib
@@ -60,6 +61,9 @@ target_link_libraries(wcu_firmware_pico
 
 # Generate our GATT header (for Bluetooth LE)
 pico_btstack_make_gatt_header(wcu_firmware PRIVATE "${CMAKE_CURRENT_LIST_DIR}/firmware/smartwindshield-bt.gatt")
+
+pico_enable_stdio_usb(wcu_firmware_pico 1)
+pico_enable_stdio_uart(wcu_firmware_pico 0)
 
 # Generate hex file
 pico_add_extra_outputs(wcu_firmware_pico)
