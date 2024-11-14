@@ -37,6 +37,7 @@ target_include_directories(SolTrack PRIVATE SolTrack)
 # This will link to the Pico main.c implementation OR unit tests
 add_library(wcu_firmware
     firmware/src/led_controller.c
+    firmware/src/solar.c
     firmware/src/comms/bluetooth.c
     firmware/src/sensors/sensors_controller.c
     firmware/src/sensors/barometer.c

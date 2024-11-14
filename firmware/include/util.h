@@ -9,4 +9,10 @@ typedef struct Vector3_T {
     uint32_t z;
 } Vector3;
 
+typedef struct Vector3D_T {
+    double x;
+    double y;
+    double z;
+} Vector3D;
+
 #endif
