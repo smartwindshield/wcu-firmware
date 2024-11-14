@@ -27,6 +27,12 @@ pico_sdk_init()
 add_subdirectory(pi-pico-adafruit-neopixels/pico_neopixels)
 add_subdirectory(SparkFun_u-blox_GNSS_Pico_library)
 
+# Add SolTrack library
+add_library(SolTrack
+    SolTrack/SolTrack.c
+)
+target_include_directories(SolTrack PRIVATE SolTrack)
+
 # Create a library containing the WCU firmware
 # This will link to the Pico main.c implementation OR unit tests
 add_library(wcu_firmware
@@ -42,6 +48,7 @@ target_include_directories(wcu_firmware PRIVATE
     HAL/include
     SparkFun_u-blox_GNSS_Pico_library/include
 )
+target_link_libraries(wcu_firmware SolTrack)
 
 add_executable(wcu_firmware_pico
     core-pico/src/main.c

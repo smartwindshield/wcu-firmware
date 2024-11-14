@@ -4,3 +4,6 @@
 [submodule "SparkFun_u-blox_GNSS_Pico_library"]
 	path = SparkFun_u-blox_GNSS_Pico_library
 	url = https://github.com/smartwindshield/SparkFun_u-blox_GNSS_Pico_library
+[submodule "SolTrack"]
+	path = SolTrack
+	url = https://github.com/astronomy/SolTrack
