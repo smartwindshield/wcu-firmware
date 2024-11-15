@@ -2,6 +2,7 @@
 #define GPS_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct GPSData_T {
     uint32_t altitude;
@@ -16,6 +17,12 @@ extern "C" {
 
 void GPS_Init(void);
 void GPS_Update(void);
+
+/**
+ * Returns true if the GPS driver has successfully communicated with
+ * the U-blox chip.
+ */ 
+bool GPS_HasChipConnectivity(void);
 
 GPSData GPS_GetData(void);
 

@@ -5,6 +5,8 @@
 
 #include "pico/types.h"
 
+#define HAL_GPIO_PICO_I2C_INTERNAL_PULLUPS 0
+
 static const uint HAL_TO_PICO_PIN_MAPPINGS[] = {
     0, // I2C_SDA
     1, // I2C_SCL

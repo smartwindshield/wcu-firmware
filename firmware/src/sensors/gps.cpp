@@ -9,6 +9,8 @@ static PicoPrintfStream debuggerStream;
 static PicoTwoWire twoWireImpl;
 static SFE_UBLOX_GNSS gnss;
 
+static bool gnssSuccess;
+
 void GPS_Init(void) {
     int32_t alt;
     twoWireImpl = HAL_CPP_I2C_GetTwoWireImpl();
@@ -17,7 +19,7 @@ void GPS_Init(void) {
 
     // Enable the ublox library debugging and connect to GPS chip
     gnss.enableDebugging(debuggerStream);
-    gnss.begin(twoWireImpl);
+    gnssSuccess = gnss.begin(twoWireImpl);
 
     // GPS chip communication initialized at this point
 
@@ -29,6 +31,10 @@ void GPS_Init(void) {
 void GPS_Update(void){
     // TODO: Determine if GPS data caching is something we need to implement or not.
     // Don't want to flood the I2C bus everytime GPS_GetData() is called
+}
+
+bool GPS_HasChipConnectivity(void) {
+    return gnssSuccess;
 }
 
 GPSData GPS_GetData(void) {

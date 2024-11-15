@@ -25,8 +25,10 @@ void HAL_I2C_Init(HAL_I2C_Bus bus, int baud_rate) {
     // Set Pin Assignments
     gpio_set_function(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA], GPIO_FUNC_I2C);
     gpio_set_function(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SCL], GPIO_FUNC_I2C);
+#ifdef HAL_GPIO_PICO_I2C_INTERNAL_PULLUPS
     gpio_pull_up(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA]);
     gpio_pull_up(HAL_TO_PICO_PIN_MAPPINGS[HAL_PIN_I2C_SDA]);
+#endif // HAL_GPIO_PICO_I2C_INTERNAL_PULLUPS
 }
 
 void HAL_I2C_Write(HAL_I2C_Bus bus, uint8_t dest_addr, uint8_t *buffer, int buffer_len) {
