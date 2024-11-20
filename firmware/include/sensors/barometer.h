@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
-void BarometerDataUpdate(uint8_t[]);
+void BarometerInit(void);
+
+float BarometerGetData(void);
 
 #endif // BAROMETER_H
