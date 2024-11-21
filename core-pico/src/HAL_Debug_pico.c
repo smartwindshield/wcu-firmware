@@ -4,10 +4,10 @@
 
 #include <stdio.h>
 
-void HAL_Debug_Printf(const char *fmt, void *stuff, ...) {
+void HAL_Debug_Printf(const char *fmt, ...) {
     va_list argptr;
 
-    va_start(argptr, stuff);
+    va_start(argptr, fmt);
     vprintf(fmt, argptr);
     va_end(argptr);
 }

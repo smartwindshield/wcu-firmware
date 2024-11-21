@@ -49,6 +49,7 @@ target_include_directories(wcu_firmware PRIVATE
     firmware/include
     HAL/include
     SparkFun_u-blox_GNSS_Pico_library/include
+    SolTrack
 )
 target_link_libraries(wcu_firmware SolTrack)
 
