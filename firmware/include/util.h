@@ -15,4 +15,9 @@ typedef struct Vector3D_T {
     double z;
 } Vector3D;
 
+typedef struct Vector2D_T {
+    double x;
+    double y;
+} Vector2D;
+
 #endif

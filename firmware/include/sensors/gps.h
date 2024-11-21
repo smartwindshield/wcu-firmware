@@ -8,7 +8,17 @@ typedef struct GPSData_T {
     uint32_t altitude;
     uint32_t latitude;
     uint32_t longitude;
-    // TODO: add more fields for GPS data we need
+
+    // Vehicle roll and pitch
+    int32_t roll;
+    int32_t pitch;
+    
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
 } GPSData;
 
 #ifdef __cplusplus

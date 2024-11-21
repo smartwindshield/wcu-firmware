@@ -44,5 +44,15 @@ GPSData GPS_GetData(void) {
     data.latitude = gnss.getLatitude();
     data.longitude = gnss.getLongitude();
 
+    data.year = gnss.getYear();
+    data.month = gnss.getMonth();
+    data.day = gnss.getDay();
+    data.hour = gnss.getHour();
+    data.minute = gnss.getMinute();
+    data.second = gnss.getSecond();
+
+    data.roll = gnss.getVehicleRoll();
+    data.pitch = gnss.getVehiclePitch();
+
     return data;
 }
