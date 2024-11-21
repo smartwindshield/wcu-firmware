@@ -18,7 +18,7 @@ static const uint HAL_TO_PICO_PIN_MAPPINGS[] = {
     7, // GPS_NRST
     8, // IMU_NRST
     9, // IMU_INTN
-    28 // LED_DATA_3v3
+    15 // LED_DATA_3v3
 };
 static const size_t HAL_TO_PICO_PIN_MAPPINGS_SIZE = sizeof(HAL_TO_PICO_PIN_MAPPINGS);
 
