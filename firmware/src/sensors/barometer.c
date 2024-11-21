@@ -16,6 +16,7 @@ void BarometerInit(void){
     HAL_I2C_Write(HAL_I2C_BUS_0, GPS_I2C_ADDRESS, config, 2);
 }
 
+//Pressure in hectopascal
 float BarometerGetData(void){
     uint8_t reg[1] = {0x28 | 0x80};
 
