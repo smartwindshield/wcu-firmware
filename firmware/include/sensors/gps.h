@@ -6,12 +6,14 @@
 
 typedef struct GPSData_T {
     uint32_t altitude;
+    // Lat/long in units of 10^-7
     uint32_t latitude;
     uint32_t longitude;
 
-    // Vehicle roll and pitch
-    int32_t roll;
-    int32_t pitch;
+    // Vehicle roll and pitch and yaw in units of degrees
+    float roll;
+    float pitch;
+    float yaw;
     
     uint16_t year;
     uint8_t month;

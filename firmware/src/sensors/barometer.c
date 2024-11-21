@@ -1,4 +1,5 @@
 #include "sensors/barometer.h"
+#include "HAL_Debug.h"
 #include "HAL_GPIO.h"
 #include <stdio.h>
 #include "HAL_I2C.h"
@@ -25,6 +26,8 @@ float BarometerGetData(void){
     HAL_I2C_Read(HAL_I2C_BUS_0, GPS_I2C_ADDRESS, data, 3);
 
     float pressure = ((data[2] << 16) | (data[1] << 8) | data[0]) / 4096.0;
+
+    HAL_Debug_Printf("[Barometer]: Barometer reports %f hectopascal\n", pressure);
 
     return pressure;
 }

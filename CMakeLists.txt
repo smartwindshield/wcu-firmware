@@ -61,6 +61,7 @@ add_executable(wcu_firmware_pico
     core-pico/src/HAL_BT_pico.c
     core-pico/src/HAL_Neopixels_pico.cpp
     core-pico/src/HAL_Debug_pico.c
+    core-pico/src/HAL_Time_pico.c
 )
 target_include_directories(wcu_firmware_pico PRIVATE 
     firmware/include
@@ -86,6 +87,7 @@ target_link_libraries(wcu_firmware_pico
 # Generate our GATT header (for Bluetooth LE)
 pico_btstack_make_gatt_header(wcu_firmware PRIVATE "${CMAKE_CURRENT_LIST_DIR}/firmware/smartwindshield-bt.gatt")
 
+# Redirect printf to UART over USB
 pico_enable_stdio_usb(wcu_firmware_pico 1)
 pico_enable_stdio_uart(wcu_firmware_pico 0)
 

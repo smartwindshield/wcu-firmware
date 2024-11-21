@@ -1,4 +1,7 @@
 #include "led_controller.h"
+#include "solar.h"
+#include "util.h"
+
 #include "HAL_GPIO.h"
 #include "HAL_Neopixels.h"
 #include "HAL_Time.h"
@@ -38,4 +41,5 @@ void LEDController_Update(void) {
 
 static void SetLEDs(void) {
     // TODO: Set which LEDs are on and off here
+    Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
 }

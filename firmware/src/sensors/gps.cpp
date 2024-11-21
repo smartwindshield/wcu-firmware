@@ -51,8 +51,11 @@ GPSData GPS_GetData(void) {
     data.minute = gnss.getMinute();
     data.second = gnss.getSecond();
 
-    data.roll = gnss.getVehicleRoll();
-    data.pitch = gnss.getVehiclePitch();
+    if (gnss.getEsfAlignment()) {
+        data.roll = gnss.getESFroll();
+        data.pitch = gnss.getESFpitch();
+        data.yaw = gnss.getESFyaw();
+    }
 
     return data;
 }
