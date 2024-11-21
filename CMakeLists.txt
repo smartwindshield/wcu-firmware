@@ -43,6 +43,7 @@ add_library(wcu_firmware
     firmware/src/sensors/barometer.c
     firmware/src/sensors/gps.cpp
     firmware/src/sensors/power_delivery.c
+    firmware/src/sensors/light.c
 )
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include
