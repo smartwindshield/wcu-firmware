@@ -3,7 +3,12 @@
 #include "ArduinoToPico.hpp"
 #include "HAL_CPP_I2C.hpp"
 
+#include "HAL_Debug.h"
+#include "HAL_GPIO.h"
+#include "HAL_Time.h"
 #include "SparkFun_u-blox_GNSS_Pico_Library.hpp"
+
+static const int MAX_GPS_TRIES = 20;
 
 static PicoPrintfStream debuggerStream;
 static PicoTwoWire twoWireImpl;
@@ -17,15 +22,20 @@ void GPS_Init(void) {
 
     debuggerStream.println("[GPS]: Initializing.");
 
+    HAL_GPIO_Init();
+
+    // Enable the GPS chip
+    HAL_GPIO_SetPin(HAL_PIN_GPS_NRST, true);
+
     // Enable the ublox library debugging and connect to GPS chip
     gnss.enableDebugging(debuggerStream);
     gnssSuccess = gnss.begin(twoWireImpl);
 
-    // GPS chip communication initialized at this point
-
-    alt = gnss.getAltitude();
-    debuggerStream.print("[GPS]: GPS Reports an altitude of ");
-    debuggerStream.println(alt);
+    for(int i = 0; i < MAX_GPS_TRIES && !gnssSuccess; i++) {
+        HAL_Time_Sleep(1000);
+        HAL_Debug_Printf("[GPS]: Retrying connectivity (try %i of %i)\n", i, MAX_GPS_TRIES);
+        gnssSuccess = gnss.begin(twoWireImpl);
+    }
 }
 
 void GPS_Update(void){
