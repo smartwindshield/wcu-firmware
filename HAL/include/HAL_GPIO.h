@@ -17,6 +17,10 @@ enum HAL_Pin {
     HAL_PIN_LED_DATA,
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Initializes the underlying implementation for GPIO operations.
  */
@@ -31,5 +35,9 @@ void HAL_GPIO_SetPin(unsigned int pin, bool state);
  * Get the state of a GPIO (if it's high or low)
  */
 bool HAL_GPIO_GetPin(unsigned int pin);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // HAL_GPIO_H

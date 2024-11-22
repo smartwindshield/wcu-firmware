@@ -17,7 +17,11 @@ extern "C" {
 #endif // __cplusplus
     void HAL_Neopixels_Init(size_t num_pixels, unsigned int pin);
 
+    void HAL_Neopixels_Reset(void);
+
     void HAL_Neopixels_SetPixel(unsigned int pixel, HAL_Neopixels_RGB color);
+
+    void HAL_Neopixels_Update(void);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

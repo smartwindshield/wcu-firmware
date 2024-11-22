@@ -16,8 +16,15 @@ extern "C" {
         pixels.show();
     }
 
+    void HAL_Neopixels_Reset() {
+        pixels.clear();
+    }
+
     void HAL_Neopixels_SetPixel(unsigned int pixel, HAL_Neopixels_RGB color) {
         pixels.setPixelColor(pixel, pixels.Color(color.r, color.g, color.b));
+    }
+
+    void HAL_Neopixels_Update(void) {
         pixels.show();
     }
 }
