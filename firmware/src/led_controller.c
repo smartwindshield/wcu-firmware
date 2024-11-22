@@ -1,4 +1,5 @@
 #include "led_controller.h"
+#include "sensors/barometer.h"
 #include "solar.h"
 #include "util.h"
 
@@ -7,7 +8,7 @@
 #include "HAL_Time.h"
 
 // Two strips in series of 167 each
-static const size_t NUM_PIXELS = 167 * 2;
+static const size_t NUM_PIXELS = 160;
 
 // Update which LEDs are on/off at this interval
 static const uint32_t LED_UPDATE_INTERVAL_MS = 1000;
@@ -19,12 +20,16 @@ static const uint32_t LED_UPDATE_INTERVAL_MS = 1000;
 static void SetLEDs(void);
 
 void LEDController_Init(void) {    
-    HAL_Neopixels_RGB color = {255, 255, 255};
+    HAL_Neopixels_RGB color = {0, 0, 0};
 
     HAL_GPIO_Init();
     HAL_Neopixels_Init(NUM_PIXELS, HAL_PIN_LED_DATA);
-    
-    HAL_Neopixels_SetPixel(1, color);
+
+    HAL_Neopixels_Reset();
+    for (int i = 0; i < NUM_PIXELS; i++) {
+        HAL_Neopixels_SetPixel(i, color);
+    }
+    HAL_Neopixels_Update();
 }
 
 void LEDController_Update(void) {
@@ -40,6 +45,18 @@ void LEDController_Update(void) {
 }
 
 static void SetLEDs(void) {
+    static int i = 0;
+    HAL_Neopixels_RGB color = {0, 0, 255};
+    HAL_Neopixels_RGB color0 = {255, 0, 0};
     // TODO: Set which LEDs are on and off here
-    Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
+
+    //Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
+    HAL_Neopixels_Reset();
+    HAL_Neopixels_SetPixel(i, color0);
+    HAL_Neopixels_SetPixel(++i, color);
+    HAL_Neopixels_Update();
+
+    BarometerGetData();
+
+    if (i >= NUM_PIXELS) i = 0;
 }
