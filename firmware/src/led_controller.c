@@ -50,13 +50,12 @@ static void SetLEDs(void) {
     HAL_Neopixels_RGB color0 = {255, 0, 0};
     // TODO: Set which LEDs are on and off here
 
-    //Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
+    Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
+
     HAL_Neopixels_Reset();
     HAL_Neopixels_SetPixel(i, color0);
     HAL_Neopixels_SetPixel(++i, color);
     HAL_Neopixels_Update();
-
-    BarometerGetData();
 
     if (i >= NUM_PIXELS) i = 0;
 }

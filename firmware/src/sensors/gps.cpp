@@ -28,7 +28,7 @@ void GPS_Init(void) {
     HAL_GPIO_SetPin(HAL_PIN_GPS_NRST, true);
 
     // Enable the ublox library debugging and connect to GPS chip
-    gnss.enableDebugging(debuggerStream);
+    //gnss.enableDebugging(debuggerStream);
     gnssSuccess = gnss.begin(twoWireImpl);
 
     for(int i = 0; i < MAX_GPS_TRIES && !gnssSuccess; i++) {
@@ -50,6 +50,9 @@ bool GPS_HasChipConnectivity(void) {
 GPSData GPS_GetData(void) {
     GPSData data;
 
+    bool state = gnss.getGnssFixOk();
+    HAL_Debug_Printf("[GPS]: GNSS Fix Status: %i\n", state);
+
     data.altitude = gnss.getAltitude();
     data.latitude = gnss.getLatitude();
     data.longitude = gnss.getLongitude();
@@ -61,7 +64,7 @@ GPSData GPS_GetData(void) {
     data.minute = gnss.getMinute();
     data.second = gnss.getSecond();
 
-    if (gnss.getEsfAlignment()) {
+    if (gnss.getEsfIns()) {
         data.roll = gnss.getESFroll();
         data.pitch = gnss.getESFpitch();
         data.yaw = gnss.getESFyaw();

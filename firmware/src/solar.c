@@ -96,6 +96,10 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     loc.pressure = BarometerGetData() * 10;     // Convert hectopascal to kilopascals
     loc.temperature = 283.0;  // TODO: Atmospheric temperature in K
 
+    HAL_Debug_Printf("[Solar]: GPS reports Date of %i/%i/%i\n", time.year, time.month, time.day);
+    HAL_Debug_Printf("[Solar]: GPS reports Long/Lat of %f and %f\n", loc.longitude, loc.latitude);
+    HAL_Debug_Printf("[Solar]: GPS reports Yaw/Pitch of %f and %f\n", gpsData.yaw, gpsData.pitch);
+
     // Compute positions:
     SolTrack(time, loc, &pos, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
@@ -130,7 +134,7 @@ Vector2D Solar_GetWindshieldRelativeIntersectionPoint(void) {
 
     // Run SolTrack
     CalculateSunPosition(&relativeAltitude, &relativeAzimuth);
-
+ 
     // Find intersection point
     Vector3D intersection;
     if (linePlaneIntersection(origin, direction, rectangleCenter, planeNormal,
