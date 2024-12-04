@@ -64,11 +64,9 @@ GPSData GPS_GetData(void) {
     data.minute = gnss.getMinute();
     data.second = gnss.getSecond();
 
-    if (gnss.getEsfIns()) {
-        data.roll = gnss.getESFroll();
-        data.pitch = gnss.getESFpitch();
-        data.yaw = gnss.getESFyaw();
-    }
+    data.roll = gnss.getATTroll();
+    data.pitch = gnss.getATTpitch();
+    data.yaw = gnss.getATTheading(); // TODO: heading same as yaw? probably
 
     return data;
 }
