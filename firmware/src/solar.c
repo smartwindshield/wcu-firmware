@@ -5,6 +5,7 @@
 #include "SolTrack.h"
 #include "sensors/barometer.h"
 #include "sensors/gps.h"
+#include "util.h"
 
 #include <math.h>
 
@@ -24,21 +25,14 @@ static Vector3D sphericalToCartesian(double altitude, double azimuth) {
 }
 
 // Function to calculate intersection point of line and plane
-// Returns 1 if intersection exists, 0 otherwise
-static int linePlaneIntersection(Vector3D origin, Vector3D direction,
-                                 Vector3D planePoint, Vector3D planeNormal,
-                                 Vector3D *intersection) {
-    // Calculate dot product of direction and normal
+static int linePlaneIntersection(Vector3D origin, Vector3D direction, Vector3D planePoint, Vector3D planeNormal, Vector3D *intersection) {
     double denom = direction.x * planeNormal.x + direction.y * planeNormal.y + direction.z * planeNormal.z;
     
-    // Check if line is parallel to plane (denom ~ 0)
     if (fabs(denom) < 1e-6) return 0; // No intersection
     
-    // Calculate distance t from origin to intersection
     Vector3D diff = {planePoint.x - origin.x, planePoint.y - origin.y, planePoint.z - origin.z};
     double t = (diff.x * planeNormal.x + diff.y * planeNormal.y + diff.z * planeNormal.z) / denom;
     
-    // Calculate intersection point
     intersection->x = origin.x + t * direction.x;
     intersection->y = origin.y + t * direction.y;
     intersection->z = origin.z + t * direction.z;
@@ -46,22 +40,11 @@ static int linePlaneIntersection(Vector3D origin, Vector3D direction,
 }
 
 // Function to check if intersection is within rectangle bounds and get relative x, y
-// rectangleCenter is the rectangle's center, u and v are the side vectors of the rectangle,
-// width and height are the rectangle's dimensions in meters.
-static int pointInRectangle(Vector3D intersection, Vector3D rectangleCenter,
-                            Vector3D u, Vector3D v, double width, double height,
-                            double *rel_x, double *rel_y) {
-    Vector3D d = {
-        intersection.x - rectangleCenter.x,
-        intersection.y - rectangleCenter.y,
-        intersection.z - rectangleCenter.z
-    };
-    
-    // Project d onto u and v to get local coordinates
+static int pointInRectangle(Vector3D intersection, Vector3D rectangleCenter, Vector3D u, Vector3D v, double width, double height, double *rel_x, double *rel_y) {
+    Vector3D d = {intersection.x - rectangleCenter.x, intersection.y - rectangleCenter.y, intersection.z - rectangleCenter.z};
     double local_x = d.x * u.x + d.y * u.y + d.z * u.z;
     double local_y = d.x * v.x + d.y * v.y + d.z * v.z;
     
-    // Check if the point is within rectangle bounds
     if (fabs(local_x) <= width / 2 && fabs(local_y) <= height / 2) {
         *rel_x = local_x / (width / 2);
         *rel_y = local_y / (height / 2);
@@ -69,6 +52,7 @@ static int pointInRectangle(Vector3D intersection, Vector3D rectangleCenter,
     }
     return 0; // Point is outside rectangle
 }
+
 
 static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimuth) {
     struct Time time;
@@ -117,15 +101,16 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     *relativeAltitude = pos.altitudeRefract - usrAltitude; 
 }
 
-Vector2D Solar_GetWindshieldRelativeIntersectionPoint(void) {
-    Vector2D relativeCoords;
+bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
+    bool inBounds = false;
     double relativeAltitude;
     double relativeAzimuth;
 
     // Define the origin point (0, 0, 0) and direction vector from spherical coordinates
     Vector3D origin = {0.0, 0.0, 0.0}; // Origin in meters
-    Vector3D direction = sphericalToCartesian(relativeAltitude, relativeAzimuth);
-
+    Vector3D direction;
+    Vector3D planeIntersection;
+    
     // Define the rectangle plane
     Vector3D rectangleCenter = {5.0, 5.0, 5.0};     // A point on the rectangle in meters
     Vector3D planeNormal = {0.0, 0.0, 1.0};         // Rectangle normal (assumed perpendicular to z-axis)
@@ -134,16 +119,19 @@ Vector2D Solar_GetWindshieldRelativeIntersectionPoint(void) {
 
     // Run SolTrack
     CalculateSunPosition(&relativeAltitude, &relativeAzimuth);
+
+    direction = sphericalToCartesian(relativeAltitude, relativeAzimuth);
  
     // Find intersection point
-    Vector3D intersection;
     if (linePlaneIntersection(origin, direction, rectangleCenter, planeNormal,
-                              &intersection)) {
-        if (pointInRectangle(intersection, rectangleCenter, u, v,
+                              &planeIntersection)) {
+        if (pointInRectangle(planeIntersection, rectangleCenter, u, v,
                              WINDSHIELD_WIDTH, WINDSHIELD_HEIGHT,
-                             &relativeCoords.x, &relativeCoords.y)) {
+                             &intersection->x, &intersection->y)) {
             HAL_Debug_Printf("[Solar]: Intersection at rectangle relative coordinates: (%.2f, %.2f)\n",
-                             relativeCoords.x, relativeCoords.y);
+                             intersection->x, intersection->y);
+
+            inBounds = true;
         } else {
             HAL_Debug_Printf("[Solar]: Intersection point is outside rectangle bounds.\n");
         }
@@ -151,6 +139,6 @@ Vector2D Solar_GetWindshieldRelativeIntersectionPoint(void) {
         HAL_Debug_Printf("[Solar]: No intersection with the rectangle plane.\n");
     }
 
-    return relativeCoords;
+    return inBounds;
 }
 
