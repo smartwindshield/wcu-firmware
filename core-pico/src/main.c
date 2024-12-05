@@ -11,6 +11,7 @@
 #include "wcu_firmware_config.h"
 
 #include <hardware/timer.h>
+#include <pico/stdio.h>
 #include <pico/types.h>
 #include <stdnoreturn.h>
 
@@ -83,6 +84,16 @@ int main() {
     sleep_ms(STARTUP_DELAY); // wait for usb serial, sensors to initialize
 #endif
 
+    // Display cool startup messages to UART
+    printf("----------------------------------------------------------------------------\n");
+    stdio_flush();
+    printf("%s\n", WCU_FIRMWARE_FANCY_NAME);
+    stdio_flush();
+    printf("%s Revision (Major.Minor): %i.%i\n",
+            WCU_FIRMWARE_NAME, WCU_FIRMWARE_REV_MAJOR, WCU_FIRMWARE_REV_MINOR);
+    printf("%s\n", WCU_FIRMWARE_AUTHORS);
+    printf("----------------------------------------------------------------------------\n");
+    
     printf("[main]: Initializing modules...\n");
 
     Storage_Init();
@@ -109,7 +120,7 @@ int main() {
 
         BluetoothComms_Update();
         SensorsController_Update();
-        LEDController_Update();
+        //LEDController_Update();
 
         measureTiming(startTime);
 
