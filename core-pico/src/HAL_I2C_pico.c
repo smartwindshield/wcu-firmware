@@ -38,6 +38,14 @@ void HAL_I2C_Write(HAL_I2C_Bus bus, uint8_t dest_addr, uint8_t *buffer, int buff
                          false, DEFAULT_TIMEOUT_US);
 }
 
+void HAL_I2C_WriteReStart(HAL_I2C_Bus bus, uint8_t dest_addr, uint8_t *buffer, int buffer_len) {
+    assert(NULL != buffer);
+
+    i2c_write_timeout_us(GetI2CInstance(bus), dest_addr, buffer, buffer_len,
+                         true, DEFAULT_TIMEOUT_US);
+
+}
+
 int HAL_I2C_Read(HAL_I2C_Bus bus, uint8_t src_addr, uint8_t *buffer, int buffer_len) {
     assert(NULL != buffer);
 

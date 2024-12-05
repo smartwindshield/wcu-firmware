@@ -3,9 +3,9 @@
 #include "HAL_Debug.h"
 
 #include "SolTrack.h"
+#include "sensors/sensors_controller.h"
 #include "sensors/barometer.h"
 #include "sensors/external_temp.h"
-#include "sensors/gps.h"
 #include "comms/bluetooth.h"
 #include "util.h"
 
@@ -63,27 +63,20 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     int computeRefrEquatorial = 0;  // Compure refraction-corrected equatorial coordinates (Hour angle, declination): 0-no, 1-yes
     int computeDistance = 1;        // Compute the distance to the Sun in AU: 0-no, 1-yes
 
-    GPSData gpsData = GPS_GetData();
+    DatetimeData datetime = SensorsController_GetDatetimeData();
+    LocationData currLocation = SensorsController_GetLocationData();
 
-    // Set (UT!) date and time manually - use the first date from SolTrack_positions.dat:
-    time.year = gpsData.year;
-    time.month = gpsData.month;
-    time.day = gpsData.day;
-    time.hour = gpsData.hour;
-    time.minute = gpsData.minute;
-    time.second = gpsData.second;
+    time.year = datetime.year;
+    time.month = datetime.month;
+    time.day = datetime.day;
+    time.hour = datetime.hour;
+    time.minute = datetime.minute;
+    time.second = datetime.second;
 
-    // Latitude and longitude from GPS are reported in 10^-7 degrees
-    loc.longitude = gpsData.longitude / (double) pow(10, 7);
-    loc.latitude  = gpsData.latitude / (double) pow(10, 7);
-    loc.pressure = BarometerGetData() / 10;     // Convert hectopascal to kilopascals
-    loc.temperature = External_Temp_GetData() + 273; // Convert Celcius to Kelvin
-
-    HAL_Debug_Printf("[Solar]: GPS reports Date/Time of %i/%i/%i %i:%i:%i\n", 
-                     time.year, time.month, time.day,
-                     time.hour, time.minute, time.second);
-    HAL_Debug_Printf("[Solar]: GPS reports Long/Lat of %f and %f\n", loc.longitude, loc.latitude);
-    HAL_Debug_Printf("[Solar]: GPS reports Yaw/Pitch of %f and %f\n", gpsData.yaw, gpsData.pitch);
+    loc.longitude = currLocation.longitude;
+    loc.latitude  = currLocation.latitude;
+    loc.pressure = SensorsController_GetPressureKpa();
+    loc.temperature = SensorsController_GetTemperatureKelvin();
 
     // Compute positions:
     SolTrack(time, loc, &pos, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
@@ -95,8 +88,8 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     HAL_Debug_Printf("[Solar]: Corected hour angle, declination:    %10.6lf° %10.6lf°\n\n", pos.hourAngleRefract, pos.declinationRefract);
 
     // Azimuth and Altitude of sun relative to user instead of north
-    double usrAzimuth = gpsData.yaw; // The 'Azimuth' of the user's view relative to north. (Yaw)
-    double usrAltitude = gpsData.pitch; // The 'Altitude' of the user's view relative to the horizon. (Pitch)
+    double usrAzimuth = currLocation.yaw; // The 'Azimuth' of the user's view relative to north. (Yaw)
+    double usrAltitude = currLocation.pitch; // The 'Altitude' of the user's view relative to the horizon. (Pitch)
 
     *relativeAzimuth = pos.azimuthRefract - usrAzimuth;
     *relativeAltitude = pos.altitudeRefract - usrAltitude; 
