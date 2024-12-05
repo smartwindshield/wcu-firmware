@@ -9,6 +9,7 @@
  * @see smartwindshield-bt.gatt
  */
 #include "smartwindshield-bt.h"
+#include "storage.h"
 
 #include <stdint.h>
 
@@ -25,12 +26,22 @@ static const uint16_t CHARACTERISTIC_WINDSHIELD_HEIGHT = ATT_CHARACTERISTIC_CAE3
 static const uint16_t CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y = ATT_CHARACTERISTIC_737E235A_CF4C_4BDE_B223_6E6A1AEA6531_01_VALUE_HANDLE;
 static const uint16_t CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X = ATT_CHARACTERISTIC_192D6EE3_89FF_4E35_B811_A96A1DA3E55C_01_VALUE_HANDLE;
 static const uint16_t CHARACTERISTIC_WINDSHIELD_ANGLE = ATT_CHARACTERISTIC_87483780_274B_4D18_82E8_246FBC163207_01_VALUE_HANDLE;
-static const size_t CHARACTERISTIC_SIZE_DRIVER_HEIGHT = sizeof(uint16_t);
-static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_LENGTH = sizeof(uint16_t);
-static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_HEIGHT = sizeof(uint16_t);
-static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_Y = sizeof(uint16_t);
-static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_X = sizeof(uint16_t);
-static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_ANGLE = sizeof(uint16_t);
+static const size_t CHARACTERISTIC_SIZE_DRIVER_HEIGHT = sizeof(uint32_t);
+static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_LENGTH = sizeof(uint32_t);
+static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_HEIGHT = sizeof(uint32_t);
+static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_Y = sizeof(uint32_t);
+static const size_t CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_X = sizeof(uint32_t);
+static const size_t CHARACTERISTIC_SIZE_WINDSHIELD_ANGLE = sizeof(uint32_t);
+
+static void set_defaults(void) {
+    uint32_t val;
+
+    val = Storage_Retrieve(STORAGE_ID_WINDSHIELD_HEIGHT);
+    HAL_BT_SetCharacteristic(CHARACTERISTIC_WINDSHIELD_HEIGHT, (uint8_t*) &val, sizeof(val));
+
+    val = Storage_Retrieve(STORAGE_ID_WINDSHIELD_WIDTH);
+    HAL_BT_SetCharacteristic(CHARACTERISTIC_WINDSHIELD_LENGTH, (uint8_t*) &val, sizeof(val));
+}
 
 void BluetoothComms_Init(void) {
     HAL_BT_Init(DEVICE_NAME, profile_data);
@@ -47,22 +58,34 @@ void BluetoothComms_Init(void) {
                                   CHARACTERISTIC_SIZE_DRIVER_WINDSHIELD_DISTANCE_X);
     HAL_BT_RegisterCharacteristic(CHARACTERISTIC_WINDSHIELD_ANGLE,
                                   CHARACTERISTIC_SIZE_WINDSHIELD_ANGLE);
+
+    set_defaults();
 }
 
-uint32_t BluetoothComms_GetWindshieldLength(void) {
+void BluetoothComms_Update(void) {
+    // TODO: check if values have changed in an interval, if they have then store them.
+}
+
+/**
+ * Stored in mm, returns in meters
+ */
+float BluetoothComms_GetWindshieldLength(void) {
     uint32_t length;
 
     HAL_BT_GetCharacteristic(CHARACTERISTIC_WINDSHIELD_LENGTH, (uint8_t*) &length);
 
-    return length;
+    return length / 1000.0;
 }
 
-uint32_t BluetoothComms_GetWindshieldHeight(void) {
+/**
+ * Winndshield width stored in mm, returns in meters.
+ */
+float BluetoothComms_GetWindshieldHeight(void) {
     uint32_t height;
 
     HAL_BT_GetCharacteristic(CHARACTERISTIC_WINDSHIELD_HEIGHT, (uint8_t*) &height);
 
-    return height;
+    return height / 1000.0;
 }
 
 Vector3 BluetoothComms_GetUserWindshieldDistance(void) {

@@ -44,6 +44,7 @@ add_library(wcu_firmware
     firmware/src/sensors/gps.cpp
     firmware/src/sensors/power_delivery.c
     firmware/src/sensors/light.c
+    firmware/src/storage.c
 )
 target_include_directories(wcu_firmware PRIVATE 
     firmware/include

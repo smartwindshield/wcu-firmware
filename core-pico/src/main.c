@@ -3,6 +3,7 @@
 #include "pico/cyw43_arch.h"
 #include "pico/time.h"
 
+#include "storage.h"
 #include "led_controller.h"
 #include "comms/bluetooth.h"
 #include "sensors/gps.h"
@@ -73,6 +74,7 @@ int main() {
 
     printf("[main]: Initializing modules...\n");
 
+    Storage_Init();
     LEDController_Init();
     BluetoothComms_Init();
     SensorsController_Init();
@@ -92,6 +94,7 @@ int main() {
     for (;;) {
         startTime = time_us_64();
 
+        BluetoothComms_Update();
         SensorsController_Update();
         LEDController_Update();
 

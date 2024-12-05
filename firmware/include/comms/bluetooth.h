@@ -4,9 +4,10 @@
 #include "util.h"
 
 void BluetoothComms_Init(void);
+void BluetoothComms_Update(void);
 
-uint32_t BluetoothComms_GetWindshieldLength(void);
-uint32_t BluetoothComms_GetWindshieldHeight(void);
+float BluetoothComms_GetWindshieldLength(void);
+float BluetoothComms_GetWindshieldHeight(void);
 Vector3 BluetoothComms_GetUserWindshieldDistance(void);
 
 #endif // COMMS_BLUETOOTH_H

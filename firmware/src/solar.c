@@ -5,15 +5,13 @@
 #include "SolTrack.h"
 #include "sensors/barometer.h"
 #include "sensors/gps.h"
+#include "comms/bluetooth.h"
 #include "util.h"
 
 #include <math.h>
 
 // Define constants for pi and degree-to-radian conversion
 #define DEG_TO_RAD(angle) ((angle) * M_PI / 180.0)
-
-static const double WINDSHIELD_WIDTH = 4.0;
-static const double WINDSHIELD_HEIGHT = 2.0;
 
 // Function to convert spherical coordinates (altitude, azimuth) to a direction vector
 static Vector3D sphericalToCartesian(double altitude, double azimuth) {
@@ -126,7 +124,8 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     if (linePlaneIntersection(origin, direction, rectangleCenter, planeNormal,
                               &planeIntersection)) {
         if (pointInRectangle(planeIntersection, rectangleCenter, u, v,
-                             WINDSHIELD_WIDTH, WINDSHIELD_HEIGHT,
+                             BluetoothComms_GetWindshieldLength(),
+                             BluetoothComms_GetWindshieldHeight(),
                              &intersection->x, &intersection->y)) {
             HAL_Debug_Printf("[Solar]: Intersection at rectangle relative coordinates: (%.2f, %.2f)\n",
                              intersection->x, intersection->y);

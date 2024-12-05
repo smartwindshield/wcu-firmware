@@ -12,7 +12,7 @@
 
 // 18 LEDs per row, 14 rows
 static const size_t LEDS_PER_ROW = 18;
-static const size_t NUM_ROWS = 14;
+static const size_t NUM_ROWS = 13;
 
 // Total number of LEDs
 static const size_t NUM_PIXELS = LEDS_PER_ROW * NUM_ROWS;
