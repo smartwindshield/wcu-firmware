@@ -5,7 +5,7 @@
 #include "sensors/sensors_controller.h"
 #include "wcu_firmware_config.h"
 
-static const uint8_t BAROMETER_I2C_ADDRESS = 0x5C; //0b01011100;
+static const uint8_t BAROMETER_I2C_ADDRESS = 0b1011100;
 static const float DEFAULT_PRESSURE = 1020.9; // Pressure reported at MSP on 11/22/24
 
 void BarometerInit(void){
@@ -13,7 +13,7 @@ void BarometerInit(void){
     uint8_t config[2] = {0x20, 0b10100000};
 
     HAL_I2C_Write(SENSORS_I2C_BUS, BAROMETER_I2C_ADDRESS, config, 2);
-
+    
     HAL_Debug_Printf("[Barometer]: Initialized.\n");
 #else
     HAL_Debug_Printf("[Barometer]: DISABLED, skipping initialization.\n");

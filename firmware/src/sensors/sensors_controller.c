@@ -12,8 +12,10 @@
 
 #include <math.h>
 
+static const uint32_t GPS_HIGHRATE_REFRESH_INTERVAL = 200;
 static const uint32_t GPS_REFRESH_INTERVAL = 1000;
-static const uint32_t SENSORS_REFRESH_INTERVAL = 1000; 
+static const uint32_t GPS_DATETIME_REFRESH_INTERVAL = 1000 * 60; // Refresh time every 60 seconds
+static const uint32_t SENSORS_REFRESH_INTERVAL = 5000; 
 
 static LocationData locationCache;
 static DatetimeData datetimeCache;
@@ -22,36 +24,62 @@ static double pressureCache;
 static double temperatureCache;
 
 static void refreshGpsData(uint32_t currentTime) {
-    static uint32_t lastRefreshTime = 0;
+    static uint32_t lastLocationRefresh = 0;
+    static uint32_t lastDatetimeRefresh = 0;
+    static uint32_t lastHighRateRefresh = 0;
     GPSData gps;
 
-    if(currentTime - lastRefreshTime >= GPS_REFRESH_INTERVAL) {
-        gps = GPS_GetData();
+    GPS_Update();
 
+    // Refresh location, datetime caches
+    if(currentTime - lastHighRateRefresh >= GPS_HIGHRATE_REFRESH_INTERVAL) {
 #ifdef DATETIME_PROVIDER_ONBOARD_GPS
-        datetimeCache.year = gps.year;
-        datetimeCache.month = gps.month;
-        datetimeCache.day = gps.day;
-        datetimeCache.hour = gps.hour;
-        datetimeCache.minute = gps.minute;
-        datetimeCache.second = gps.second;
+        if (currentTime - lastDatetimeRefresh >= GPS_DATETIME_REFRESH_INTERVAL) {
+            gps = GPS_GetFullData();
 
-        HAL_Debug_Printf("[SensorsController]: Location Data Cache Update: %i/%i/%i %i:%i:%i ", 
-                     datetimeCache.year, datetimeCache.month, datetimeCache.day,
-                     datetimeCache.hour, datetimeCache.minute, datetimeCache.second);
+            datetimeCache.year = gps.year;
+            datetimeCache.month = gps.month;
+            datetimeCache.day = gps.day;
+            datetimeCache.hour = gps.hour;
+            datetimeCache.minute = gps.minute;
+            datetimeCache.second = gps.second;
+
+            HAL_Debug_Printf("[SensorsController]: Datetime (GPS) Cache Update: %i/%i/%i %i:%i:%i\n", 
+                         datetimeCache.year, datetimeCache.month, datetimeCache.day,
+                         datetimeCache.hour, datetimeCache.minute, datetimeCache.second);
+
+            lastDatetimeRefresh = currentTime;
+        }
+#else
+        if (0) { }
 #endif // DATETIME_PROVIDER_ONBOARD_GPS
+       
+        /*
+         * Latitude/longitude and yaw/pitch refresh
+         */
+        else if (currentTime - lastLocationRefresh >= GPS_REFRESH_INTERVAL) {
+            gps = GPS_GetLocationData();
+            
+            locationCache.latitude = gps.latitude / (double) pow(10, 7);
+            locationCache.longitude = gps.longitude / (double) pow(10, 7);
+            locationCache.yaw = gps.yaw;
+            locationCache.pitch = gps.pitch;
 
-        locationCache.latitude = gps.latitude / (double) pow(10, 7);
-        locationCache.longitude = gps.longitude / (double) pow(10, 7);
-        locationCache.yaw = gps.yaw;
-        locationCache.pitch = gps.pitch;
+            lastLocationRefresh = currentTime;
 
-        HAL_Debug_Printf("[SensorsController]: Location Data Cache Update: ");
-        HAL_Debug_Printf("(Lat/Long: %d and %d) (Yaw/Pitch: %f and %f)\n",
-                         locationCache.latitude, locationCache.longitude,
-                         locationCache.yaw, locationCache.pitch);
+            HAL_Debug_Printf("[SensorsController]: Location (GPS) Data Cache Update: ");
+            HAL_Debug_Printf("(Lat/Long: %d and %d) (Yaw/Pitch: %f and %f)\n",
+                             locationCache.latitude, locationCache.longitude,
+                             locationCache.yaw, locationCache.pitch);
+        } else {
+            // Just high rate data (yaw and pitch) refresh
+            gps = GPS_GetHighRateLocationData();
 
-        lastRefreshTime = currentTime;
+            locationCache.yaw = gps.yaw;
+            locationCache.pitch = gps.pitch;
+        }
+
+        lastHighRateRefresh = currentTime;
     }
 }
 
@@ -74,7 +102,7 @@ void SensorsController_Update(void) {
     static uint32_t lastSensorRefresh = 0;
     uint32_t currentTime = HAL_Time_GetTimeNow();
 #ifdef LOCATION_PROVIDER_ONBOARD_GPS
-    refreshGpsData();
+    refreshGpsData(currentTime);
 #else 
     // Dummy Location and datetime data
 #endif

@@ -27,14 +27,15 @@ float External_Temp_GetData(void){
     HAL_Debug_Printf("[EXT Temp]: DISABLED, reporting 68 degrees C\n");
     return 68.0; // Hardcoded value
 #else
+    int result[2];
     uint8_t read[1] = {0xC1};
     HAL_I2C_Write(HAL_I2C_BUS_0, EXTERNAL_TEMP_I2C_ADDRESS, read, 1);
 
     uint8_t UpperByte[1];
     uint8_t LowerByte[1];
 
-    HAL_I2C_Read(HAL_I2C_BUS_0, EXTERNAL_TEMP_I2C_ADDRESS, UpperByte, 1);
-    HAL_I2C_Read(HAL_I2C_BUS_0, EXTERNAL_TEMP_I2C_ADDRESS, LowerByte, 1);
+    result[0] = HAL_I2C_Read(HAL_I2C_BUS_0, EXTERNAL_TEMP_I2C_ADDRESS, UpperByte, 1);
+    result[1] = HAL_I2C_Read(HAL_I2C_BUS_0, EXTERNAL_TEMP_I2C_ADDRESS, LowerByte, 1);
 
     float temp;
 
@@ -44,7 +45,8 @@ float External_Temp_GetData(void){
         temp = (UpperByte[0] * 16) + (LowerByte[0] / 16);
     }
 
-    HAL_Debug_Printf("[EXT Temp]: Reporting %f degrees C (RAW: %X %X\n", temp, UpperByte, LowerByte);
+    HAL_Debug_Printf("[EXT Temp]: Reporting %f degrees C (RAW: %X %X, I2C Result: %i %i)\n",
+                     temp, UpperByte, LowerByte, result[0], result[1]);
 
     return temp;
 #endif // EXTERNAL_TEMP_DISABLED

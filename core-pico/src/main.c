@@ -17,7 +17,7 @@
 #define STARTUP_DELAY 1000
 
 // Make this a power of 2 for quick division
-#define NUM_TIMING_SAMPLES 2
+#define NUM_TIMING_SAMPLES 8
 
 static const int ERROR_NO_GPS_LED_PERIOD = 100;
 

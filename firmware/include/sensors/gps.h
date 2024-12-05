@@ -36,7 +36,18 @@ void GPS_Update(void);
  */ 
 bool GPS_HasChipConnectivity(void);
 
-GPSData GPS_GetData(void);
+/**
+ * Populates all fields except the date and time related ones.
+ */
+GPSData GPS_GetLocationData(void);
+/**
+ * Only populates roll, pitch and yaw.
+ */
+GPSData GPS_GetHighRateLocationData(void);
+/**
+ * Populates all fields.
+ */
+GPSData GPS_GetFullData(void);
 
 #ifdef __cplusplus
 }
