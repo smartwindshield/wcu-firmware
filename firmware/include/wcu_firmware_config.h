@@ -33,6 +33,8 @@
 "                                                                                                    \n" \
 "                                                                                                    \n"
 
+#define DEBUG_PRINTF_ENABLED
+
 #define WCU_FIRMWARE_NAME "WCU Firmware"
 #define WCU_FIRMWARE_AUTHORS "Alejandro Zeise, Avinash Sivaraman, Matthew Breach, Thomas Nicklaus, Roman Schifsky"
 

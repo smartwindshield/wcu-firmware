@@ -2,6 +2,7 @@
 
 #include "HAL_Debug.h"
 
+#include "HAL_Time.h"
 #include "SolTrack.h"
 #include "sensors/sensors_controller.h"
 #include "sensors/barometer.h"
@@ -111,6 +112,7 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     Vector3D u = {1.0, 0.0, 0.0};                   // Vector representing width direction in meters
     Vector3D v = {0.0, 1.0, 0.0};                   // Vector representing height direction in meters
 
+    // TODO: Cache SolTrack data so this doesn't have to run every time
     // Run SolTrack
     CalculateSunPosition(&relativeAltitude, &relativeAzimuth);
 

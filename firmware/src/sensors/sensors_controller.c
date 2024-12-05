@@ -13,7 +13,7 @@
 #include <math.h>
 
 static const uint32_t GPS_HIGHRATE_REFRESH_INTERVAL = 200;
-static const uint32_t GPS_REFRESH_INTERVAL = 1000;
+static const uint32_t GPS_REFRESH_INTERVAL = 2000;
 static const uint32_t GPS_DATETIME_REFRESH_INTERVAL = 1000 * 60; // Refresh time every 60 seconds
 static const uint32_t SENSORS_REFRESH_INTERVAL = 5000; 
 
@@ -34,7 +34,7 @@ static void refreshGpsData(uint32_t currentTime) {
     // Refresh location, datetime caches
     if(currentTime - lastHighRateRefresh >= GPS_HIGHRATE_REFRESH_INTERVAL) {
 #ifdef DATETIME_PROVIDER_ONBOARD_GPS
-        if (currentTime - lastDatetimeRefresh >= GPS_DATETIME_REFRESH_INTERVAL) {
+        if (lastDatetimeRefresh == 0 || currentTime - lastDatetimeRefresh >= GPS_DATETIME_REFRESH_INTERVAL) {
             gps = GPS_GetFullData();
 
             datetimeCache.year = gps.year;
@@ -60,15 +60,15 @@ static void refreshGpsData(uint32_t currentTime) {
         else if (currentTime - lastLocationRefresh >= GPS_REFRESH_INTERVAL) {
             gps = GPS_GetLocationData();
             
-            locationCache.latitude = gps.latitude / (double) pow(10, 7);
-            locationCache.longitude = gps.longitude / (double) pow(10, 7);
+            locationCache.latitude = (double) gps.latitude / (double) pow(10, 7);
+            locationCache.longitude = (double) gps.longitude / (double) pow(10, 7);
             locationCache.yaw = gps.yaw;
             locationCache.pitch = gps.pitch;
 
             lastLocationRefresh = currentTime;
 
             HAL_Debug_Printf("[SensorsController]: Location (GPS) Data Cache Update: ");
-            HAL_Debug_Printf("(Lat/Long: %d and %d) (Yaw/Pitch: %f and %f)\n",
+            HAL_Debug_Printf("(Lat/Long: %f and %f) (Yaw/Pitch: %f and %f)\n",
                              locationCache.latitude, locationCache.longitude,
                              locationCache.yaw, locationCache.pitch);
         } else {
@@ -77,6 +77,11 @@ static void refreshGpsData(uint32_t currentTime) {
 
             locationCache.yaw = gps.yaw;
             locationCache.pitch = gps.pitch;
+        }
+
+        if (currentTime - lastHighRateRefresh >= GPS_HIGHRATE_REFRESH_INTERVAL + 50) {
+            HAL_Debug_Printf("[SensorsController]: HighRate Refresh Interval Exceeded: %i ms\n",
+                             currentTime - lastHighRateRefresh);
         }
 
         lastHighRateRefresh = currentTime;

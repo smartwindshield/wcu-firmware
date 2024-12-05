@@ -120,7 +120,7 @@ int main() {
 
         BluetoothComms_Update();
         SensorsController_Update();
-        //LEDController_Update();
+        LEDController_Update();
 
         measureTiming(startTime);
 

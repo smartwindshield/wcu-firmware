@@ -11,6 +11,12 @@
 static const int MAX_GPS_TRIES = 20;
 static const uint32_t GPS_DEBUG_STATUS_INTERVAL = 5000;
 
+static const uint8_t HNR_RATE = 25; // 20 Hz update for HNR data on GPS chip
+static const uint8_t PVT_RATE = 4; // 4 Hz update for general navigation data on GPS chip
+// Max wait for PVT and HNR should be slightly longer than the HNR and PVT periods
+static const uint16_t PVT_MAX_WAIT = 300;
+static const uint16_t HNR_MAX_WAIT = 80;
+
 static PicoPrintfStream debuggerStream;
 static PicoTwoWire twoWireImpl;
 static SFE_UBLOX_GNSS gnss;
@@ -40,6 +46,11 @@ void GPS_Init(void) {
 
     if (gnssSuccess) {
         gnss.setI2COutput(COM_TYPE_UBX); //Set the I2C port to output UBX only (turn off NMEA noise)
+
+        // Set the HNR and Navigation frequencies on the chip
+        // This tells the chip to gather more readings for us
+        gnss.setHNRNavigationRate(HNR_RATE);
+        gnss.setNavigationFrequency(PVT_RATE);
     }
 }
 
@@ -53,9 +64,9 @@ void GPS_Update(void){
 
     if (currentTime - lastCheck >= GPS_DEBUG_STATUS_INTERVAL) {
 #if 1
-        state = gnss.getGnssFixOk();
-        esfIns = gnss.getEsfIns();
-        hnrAtt = gnss.getHNRAtt();
+        state = gnss.getGnssFixOk(HNR_MAX_WAIT);
+        esfIns = gnss.getEsfIns(HNR_MAX_WAIT);
+        hnrAtt = gnss.getHNRAtt(HNR_MAX_WAIT);
 
         HAL_Debug_Printf("[GPS]: GNSS Fix Status: %i, ESF/HNR Status: %i/%i\n", 
                          state, esfIns, hnrAtt);
@@ -70,14 +81,13 @@ bool GPS_HasChipConnectivity(void) {
 
 GPSData GPS_GetLocationData(void) {
     GPSData data;
+
+    data.latitude = gnss.getLatitude(PVT_MAX_WAIT);
+    data.longitude = gnss.getLongitude(PVT_MAX_WAIT);
     
-    data.altitude = gnss.getAltitude();
-    data.latitude = gnss.getLatitude();
-    data.longitude = gnss.getLongitude();
-    
-    data.roll = gnss.getHNRroll();
-    data.pitch = gnss.getHNRpitch();
-    data.yaw = gnss.getHNRheading(); // TODO: heading same as yaw? probably
+    data.roll = gnss.getHNRroll(HNR_MAX_WAIT);
+    data.pitch = gnss.getHNRpitch(HNR_MAX_WAIT);
+    data.yaw = gnss.getHNRheading(HNR_MAX_WAIT);
 
     return data;
 }
@@ -85,9 +95,9 @@ GPSData GPS_GetLocationData(void) {
 GPSData GPS_GetHighRateLocationData(void) {
     GPSData data;
     
-    data.roll = gnss.getHNRroll();
-    data.pitch = gnss.getHNRpitch();
-    data.yaw = gnss.getHNRheading(); // TODO: heading same as yaw? probably
+    data.roll = gnss.getHNRroll(HNR_MAX_WAIT);
+    data.pitch = gnss.getHNRpitch(HNR_MAX_WAIT);
+    data.yaw = gnss.getHNRheading(HNR_MAX_WAIT);
 
     return data;
 }
@@ -95,20 +105,20 @@ GPSData GPS_GetHighRateLocationData(void) {
 GPSData GPS_GetFullData(void) {
     GPSData data;
     
-    data.altitude = gnss.getAltitude();
-    data.latitude = gnss.getLatitude();
-    data.longitude = gnss.getLongitude();
+    data.altitude = gnss.getAltitude(PVT_MAX_WAIT);
+    data.latitude = gnss.getLatitude(PVT_MAX_WAIT);
+    data.longitude = gnss.getLongitude(PVT_MAX_WAIT);
 
-    data.year = gnss.getYear();
-    data.month = gnss.getMonth();
-    data.day = gnss.getDay();
-    data.hour = gnss.getHour();
-    data.minute = gnss.getMinute();
-    data.second = gnss.getSecond();
+    data.year = gnss.getYear(PVT_MAX_WAIT);
+    data.month = gnss.getMonth(PVT_MAX_WAIT);
+    data.day = gnss.getDay(PVT_MAX_WAIT);
+    data.hour = gnss.getHour(PVT_MAX_WAIT);
+    data.minute = gnss.getMinute(PVT_MAX_WAIT);
+    data.second = gnss.getSecond(PVT_MAX_WAIT);
 
-    data.roll = gnss.getHNRroll();
-    data.pitch = gnss.getHNRpitch();
-    data.yaw = gnss.getHNRheading(); // TODO: heading same as yaw? probably
+    data.roll = gnss.getHNRroll(HNR_MAX_WAIT);
+    data.pitch = gnss.getHNRpitch(HNR_MAX_WAIT);
+    data.yaw = gnss.getHNRheading(HNR_MAX_WAIT);
 
     return data;
 }
