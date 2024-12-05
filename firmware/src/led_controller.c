@@ -79,9 +79,6 @@ static void SetLEDs(void) {
     static int i = 0;
     HAL_Neopixels_RGB color = {0, 0, 255};
     HAL_Neopixels_RGB color0 = {255, 0, 0};
-    // TODO: Set which LEDs are on and off here
-
-    Vector2D solarWindshieldPos = Solar_GetWindshieldRelativeIntersectionPoint();
 
     HAL_Neopixels_Reset();
     HAL_Neopixels_SetPixel(i, color0);

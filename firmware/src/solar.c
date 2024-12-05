@@ -4,6 +4,7 @@
 
 #include "SolTrack.h"
 #include "sensors/barometer.h"
+#include "sensors/external_temp.h"
 #include "sensors/gps.h"
 #include "comms/bluetooth.h"
 #include "util.h"
@@ -75,10 +76,12 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     // Latitude and longitude from GPS are reported in 10^-7 degrees
     loc.longitude = gpsData.longitude / (double) pow(10, 7);
     loc.latitude  = gpsData.latitude / (double) pow(10, 7);
-    loc.pressure = BarometerGetData() * 10;     // Convert hectopascal to kilopascals
-    loc.temperature = 283.0;  // TODO: Atmospheric temperature in K
+    loc.pressure = BarometerGetData() / 10;     // Convert hectopascal to kilopascals
+    loc.temperature = External_Temp_GetData() + 273; // Convert Celcius to Kelvin
 
-    HAL_Debug_Printf("[Solar]: GPS reports Date of %i/%i/%i\n", time.year, time.month, time.day);
+    HAL_Debug_Printf("[Solar]: GPS reports Date/Time of %i/%i/%i %i:%i:%i\n", 
+                     time.year, time.month, time.day,
+                     time.hour, time.minute, time.second);
     HAL_Debug_Printf("[Solar]: GPS reports Long/Lat of %f and %f\n", loc.longitude, loc.latitude);
     HAL_Debug_Printf("[Solar]: GPS reports Yaw/Pitch of %f and %f\n", gpsData.yaw, gpsData.pitch);
 

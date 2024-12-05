@@ -6,5 +6,6 @@
 
 // Disable barometer, PCB footprint incorrect
 #define BAROMETER_DISABLED 1
+#define EXTERNAL_TEMP_DISABLED 1
 
 #endif // WCU_FIRMWARE_CONFIG_H
