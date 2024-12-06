@@ -5,10 +5,10 @@
 #include <stdbool.h>
 
 typedef struct GPSData_T {
-    uint32_t altitude;
+    int32_t altitude;
     // Lat/long in units of 10^-7
-    uint32_t latitude;
-    uint32_t longitude;
+    int32_t latitude;
+    int32_t longitude;
 
     // Vehicle roll and pitch and yaw in units of degrees
     float roll;

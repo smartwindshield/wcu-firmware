@@ -37,6 +37,11 @@ static void refreshGpsData(uint32_t currentTime) {
         if (lastDatetimeRefresh == 0 || currentTime - lastDatetimeRefresh >= GPS_DATETIME_REFRESH_INTERVAL) {
             gps = GPS_GetFullData();
 
+            locationCache.latitude = (double) gps.latitude / (double) pow(10, 7);
+            locationCache.longitude = (double) gps.longitude / (double) pow(10, 7);
+            locationCache.yaw = gps.yaw;
+            locationCache.pitch = gps.pitch;
+
             datetimeCache.year = gps.year;
             datetimeCache.month = gps.month;
             datetimeCache.day = gps.day;
@@ -49,6 +54,8 @@ static void refreshGpsData(uint32_t currentTime) {
                          datetimeCache.hour, datetimeCache.minute, datetimeCache.second);
 
             lastDatetimeRefresh = currentTime;
+            lastLocationRefresh = currentTime;
+            lastHighRateRefresh = currentTime;
         }
 #else
         if (0) { }
@@ -66,6 +73,7 @@ static void refreshGpsData(uint32_t currentTime) {
             locationCache.pitch = gps.pitch;
 
             lastLocationRefresh = currentTime;
+            lastHighRateRefresh = currentTime;
 
             HAL_Debug_Printf("[SensorsController]: Location (GPS) Data Cache Update: ");
             HAL_Debug_Printf("(Lat/Long: %f and %f) (Yaw/Pitch: %f and %f)\n",
