@@ -15,7 +15,7 @@
 #include <pico/types.h>
 #include <stdnoreturn.h>
 
-#define STARTUP_DELAY 1000
+#define STARTUP_DELAY 2000
 
 // Make this a power of 2 for quick division
 #define NUM_TIMING_SAMPLES 8

@@ -8,6 +8,7 @@
  *
  * @see smartwindshield-bt.gatt
  */
+#include "HAL_Debug.h"
 #include "smartwindshield-bt.h"
 #include "storage.h"
 
@@ -41,6 +42,14 @@ static void set_defaults(void) {
 
     val = Storage_Retrieve(STORAGE_ID_WINDSHIELD_WIDTH);
     HAL_BT_SetCharacteristic(CHARACTERISTIC_WINDSHIELD_LENGTH, (uint8_t*) &val, sizeof(val));
+
+    val = Storage_Retrieve(STORAGE_ID_WINDSHIELD_DISTANCE_X);
+    HAL_BT_SetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X, (uint8_t*) &val, sizeof(val));
+
+    val = Storage_Retrieve(STORAGE_ID_WINDSHIELD_DISTANCE_Y);
+    HAL_BT_SetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y, (uint8_t*) &val, sizeof(val));
+
+    HAL_Debug_Printf("[Bluetooth]: Set characteristics to previously stored values.\n");
 }
 
 void BluetoothComms_Init(void) {
@@ -88,14 +97,19 @@ float BluetoothComms_GetWindshieldHeight(void) {
     return height / 1000.0;
 }
 
-Vector3 BluetoothComms_GetUserWindshieldDistance(void) {
-    Vector3 vec;
+Vector3D BluetoothComms_GetUserWindshieldDistance(void) {
+    Vector3D vec;
+    uint32_t value;
 
     HAL_BT_GetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_X, 
-                             (uint8_t*) &vec.x);
+                             (uint8_t*) &value);
+    vec.x = value / 1000.0; // Convert from mm to m
+
     HAL_BT_GetCharacteristic(CHARACTERISTIC_DRIVER_WINDSHIELD_DISTANCE_Y, 
-                             (uint8_t*) &vec.y);
-    HAL_BT_GetCharacteristic(CHARACTERISTIC_SIZE_DRIVER_HEIGHT, (uint8_t*) &vec.z);
+                             (uint8_t*) &value);
+    vec.y = value / 1000.0; // Convert from mm to m
+    //HAL_BT_GetCharacteristic(CHARACTERISTIC_SIZE_DRIVER_HEIGHT, (uint8_t*) &vec.z);
+    // TODO: driver height
 
     return vec;
 }

@@ -215,5 +215,7 @@ void HAL_BT_SetCharacteristic(uint8_t id, uint8_t *value, size_t size) {
    if (id < HAL_BT_MAX_CHARACTERISTICS && characteristics[id].registered
         && size <= characteristics[id].size) {
        memcpy(characteristics[id].value, value, size);
+   } else {
+       printf("[HAL BT]: Failed setting characteristic value %i\n", id);
    }
 }

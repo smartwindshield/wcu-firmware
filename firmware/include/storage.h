@@ -8,6 +8,9 @@
  */
 static const uint32_t STORAGE_ID_WINDSHIELD_HEIGHT = 0;
 static const uint32_t STORAGE_ID_WINDSHIELD_WIDTH = 1;
+static const uint32_t STORAGE_ID_WINDSHIELD_DISTANCE_X = 2;
+static const uint32_t STORAGE_ID_WINDSHIELD_DISTANCE_Y = 3;
+static const uint32_t STORAGE_ID_WINDSHIELD_ANGLE = 4;
 
 void Storage_Init(void);
 
