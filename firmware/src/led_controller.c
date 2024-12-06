@@ -21,7 +21,7 @@ static const HAL_Neopixels_RGB SUN_LED_COLOR = {255, 0, 0};
 static const HAL_Neopixels_RGB NO_INTERSECT_COLOR = {0, 255, 0};
 
 // Update which LEDs are on/off at this interval
-static const uint32_t LED_UPDATE_INTERVAL_MS = 500;
+static const uint32_t LED_UPDATE_INTERVAL_MS = 200;
 
 /**
  * Set which LEDs are on/off in accordance to the data obtained
@@ -98,7 +98,7 @@ static void SetLEDs(void) {
 
         HAL_Neopixels_SetPixel(ledIndex, SUN_LED_COLOR);
     } else {
-        HAL_Neopixels_SetPixel(1, NO_INTERSECT_COLOR);
+        HAL_Neopixels_SetPixel(0, NO_INTERSECT_COLOR);
     }
 
     HAL_Neopixels_Update();
