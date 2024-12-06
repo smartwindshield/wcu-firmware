@@ -39,12 +39,12 @@
 #define WCU_FIRMWARE_AUTHORS "Alejandro Zeise, Avinash Sivaraman, Matthew Breach, Thomas Nicklaus, Roman Schifsky"
 
 #define WCU_FIRMWARE_REV_MAJOR 1
-#define WCU_FIRMWARE_REV_MINOR 3
+#define WCU_FIRMWARE_REV_MINOR 5
 
 #define LOCATION_PROVIDER_ONBOARD_GPS
 #define DATETIME_PROVIDER_ONBOARD_GPS
 
 //#define BAROMETER_DISABLED
-//#define EXTERNAL_TEMP_DISABLED
+//define EXTERNAL_TEMP_DISABLED
 
 #endif // WCU_FIRMWARE_CONFIG_H

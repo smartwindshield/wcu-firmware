@@ -54,7 +54,7 @@ static int pointInRectangle(Vector3D intersection, Vector3D rectangleCenter, Vec
 }
 
 
-static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimuth) {
+static void CalculateSunPosition(LocationData currLocation, double *relativeAltitude, double *relativeAzimuth) {
     struct Time time;
     struct Position pos;
     struct Location loc;
@@ -65,7 +65,6 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     int computeDistance = 1;        // Compute the distance to the Sun in AU: 0-no, 1-yes
 
     DatetimeData datetime = SensorsController_GetDatetimeData();
-    LocationData currLocation = SensorsController_GetLocationData();
 
     time.year = datetime.year;
     time.month = datetime.month;
@@ -78,22 +77,27 @@ static void CalculateSunPosition(double *relativeAltitude, double *relativeAzimu
     loc.latitude  = currLocation.latitude;
     loc.pressure = SensorsController_GetPressureKpa();
     loc.temperature = SensorsController_GetTemperatureKelvin();
-
+    
     // Compute positions:
     SolTrack(time, loc, &pos, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
-
+#if 0
     HAL_Debug_Printf("[Solar]: Ecliptic longitude, latitude:        %10.6lf° %10.6lf°\n", pos.longitude, 0.0);
     HAL_Debug_Printf("[Solar]: Right ascension, declination:        %10.6lf° %10.6lf°\n", pos.rightAscension, pos.declination);
     HAL_Debug_Printf("[Solar]: Uncorrected altitude:                            %10.6lf°\n\n", pos.altitude);
     HAL_Debug_Printf("[Solar]: Corrected azimuth, altitude:         %10.6lf° %10.6lf°\n", pos.azimuthRefract, pos.altitudeRefract);
     HAL_Debug_Printf("[Solar]: Corected hour angle, declination:    %10.6lf° %10.6lf°\n\n", pos.hourAngleRefract, pos.declinationRefract);
-
+#endif
     // Azimuth and Altitude of sun relative to user instead of north
     double usrAzimuth = currLocation.yaw; // The 'Azimuth' of the user's view relative to north. (Yaw)
     double usrAltitude = currLocation.pitch; // The 'Altitude' of the user's view relative to the horizon. (Pitch)
 
     *relativeAzimuth = pos.azimuthRefract - usrAzimuth;
-    *relativeAltitude = pos.altitudeRefract - usrAltitude; 
+    *relativeAltitude = pos.altitudeRefract - usrAltitude;
+
+    HAL_Debug_Printf("[Solar]: Sun azimuth Refract, altitude refract: %f %f\n",
+                     pos.azimuthRefract, pos.altitudeRefract);
+    HAL_Debug_Printf("[Solar]: Sun relative azimuth, altitude: %f %f\n",
+                    *relativeAzimuth, *relativeAltitude);
 }
 
 bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
@@ -105,16 +109,55 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     Vector3D origin = {0.0, 0.0, 0.0}; // Origin in meters
     Vector3D direction;
     Vector3D planeIntersection;
+
+    LocationData currLocation = SensorsController_GetLocationData();
+
+    Vector3D distanceToWindshield = BluetoothComms_GetUserWindshieldDistance();
+    double windshieldHeight = BluetoothComms_GetWindshieldHeight();
+    double windshieldLength = BluetoothComms_GetWindshieldLength();
+
+    // TODO: swap X,Y due to differences with visualizer and ublox? idk yet
     
-    // Define the rectangle plane
-    Vector3D rectangleCenter = {5.0, 5.0, 5.0};     // A point on the rectangle in meters
-    Vector3D planeNormal = {0.0, 0.0, 1.0};         // Rectangle normal (assumed perpendicular to z-axis)
-    Vector3D u = {1.0, 0.0, 0.0};                   // Vector representing width direction in meters
+    // Define the rectanglular plane (windshield)
+    // To account for the user's orientation (heading), we need to rotate the center point
+    // Instead of a rotation matrix, we can represent the center in spherical coordinates
+    // which would be (distanceToWindshield, 0, heading)
+    // TODO: Make this work for the user not being exactly dead center of the windshield
+    Vector3D rectangleCenter = sphericalToCartesian(0, currLocation.yaw);
+    // Multiply in the "rho" value (distance to the windshield)
+    rectangleCenter.x *= distanceToWindshield.x;
+    rectangleCenter.y *= distanceToWindshield.x;
+    rectangleCenter.z *= distanceToWindshield.x;
+
+    //Vector3D rectangleCenter = {5, 5, 0.0};
+
+    // Rectangle normal (assumed perpendicular to z-axis)
+    // Same as the rectangeCenter point except it is negated to point in the opposite direction
+    // (and no "rho" multiplication) to normalize it
+    Vector3D planeNormal = sphericalToCartesian(0, currLocation.yaw);
+    planeNormal.x *= -1;
+    planeNormal.y *= -1;
+    planeNormal.z *= -1;
+
+    /*
+     * This vector determines the width direction.
+     * The width direction is perpendicular to the windshield's heading,
+     * favoring positive X as well
+     */
+    Vector3D u = sphericalToCartesian(0, (currLocation.yaw > 180 ? currLocation.yaw - 90 : currLocation.yaw + 90));
+
+    // TODO: implement windshield angle using similar principle with this vector
     Vector3D v = {0.0, 1.0, 0.0};                   // Vector representing height direction in meters
+   
+    HAL_Debug_Printf("[Solar]: Windshield Center is (X,Y,Z): %f %f %f, Heading %F\n",
+                     rectangleCenter.x, rectangleCenter.y, rectangleCenter.z,
+                     currLocation.yaw);
 
     // TODO: Cache SolTrack data so this doesn't have to run every time
     // Run SolTrack
-    CalculateSunPosition(&relativeAltitude, &relativeAzimuth);
+    CalculateSunPosition(currLocation, &relativeAltitude, &relativeAzimuth);
+    //relativeAltitude = 10;
+    //relativeAzimuth = 15;
 
     direction = sphericalToCartesian(relativeAltitude, relativeAzimuth);
  
@@ -122,15 +165,17 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     if (linePlaneIntersection(origin, direction, rectangleCenter, planeNormal,
                               &planeIntersection)) {
         if (pointInRectangle(planeIntersection, rectangleCenter, u, v,
-                             BluetoothComms_GetWindshieldLength(),
-                             BluetoothComms_GetWindshieldHeight(),
+                             windshieldLength,
+                             windshieldHeight,
                              &intersection->x, &intersection->y)) {
+            HAL_Debug_Printf("[Solar]: Intersection at real coordinates: %f %f %f\n", planeIntersection.x, planeIntersection.y, planeIntersection.z);
             HAL_Debug_Printf("[Solar]: Intersection at rectangle relative coordinates: (%.2f, %.2f)\n",
                              intersection->x, intersection->y);
 
             inBounds = true;
         } else {
-            HAL_Debug_Printf("[Solar]: Intersection point is outside rectangle bounds.\n");
+            HAL_Debug_Printf("[Solar]: Intersection point is outside rectangle bounds, at %f %f %f\n",
+                    planeIntersection.x, planeIntersection.y, planeIntersection.z);
         }
     } else {
         HAL_Debug_Printf("[Solar]: No intersection with the rectangle plane.\n");
