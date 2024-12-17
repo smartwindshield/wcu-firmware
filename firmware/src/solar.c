@@ -15,6 +15,33 @@
 // Define constants for pi and degree-to-radian conversion
 #define DEG_TO_RAD(angle) ((angle) * M_PI / 180.0)
 
+// Function to compute the cross product of two vectors
+static Vector3D crossProduct(Vector3D a, Vector3D b) {
+    Vector3D result;
+    result.x = a.y * b.z - a.z * b.y;
+    result.y = a.z * b.x - a.x * b.z;
+    result.z = a.x * b.y - a.y * b.x;
+    return result;
+}
+
+// Function to rotate a vector around the Y-axis by a given angle (in degrees)
+Vector3D rotateAroundY(Vector3D normal, float angleDegrees) {
+    // Convert angle to radians
+    float angleRadians = angleDegrees * (M_PI / 180.0f);
+    
+    // Calculate the cosine and sine of the angle
+    float cosAngle = cos(angleRadians);
+    float sinAngle = sin(angleRadians);
+    
+    // Apply the rotation matrix for rotating around the Y-axis
+    Vector3D rotatedNormal;
+    rotatedNormal.x = normal.x * cosAngle + normal.z * sinAngle;
+    rotatedNormal.y = normal.y;  // Y-component remains the same
+    rotatedNormal.z = -normal.x * sinAngle + normal.z * cosAngle;
+    
+    return rotatedNormal;
+}
+
 // Function to convert spherical coordinates (altitude, azimuth) to a direction vector
 static Vector3D sphericalToCartesian(double altitude, double azimuth) {
     Vector3D direction;
@@ -115,6 +142,7 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     Vector3D distanceToWindshield = BluetoothComms_GetUserWindshieldDistance();
     double windshieldHeight = BluetoothComms_GetWindshieldHeight();
     double windshieldLength = BluetoothComms_GetWindshieldLength();
+    double windshieldAngleRotate = -60;
 
     // TODO: swap X,Y due to differences with visualizer and ublox? idk yet
     
@@ -139,6 +167,8 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     planeNormal.y *= -1;
     planeNormal.z *= -1;
 
+    planeNormal = rotateAroundY(planeNormal, windshieldAngleRotate);
+
     /*
      * This vector determines the width direction.
      * The width direction is perpendicular to the windshield's heading,
@@ -147,7 +177,7 @@ bool Solar_GetWindshieldRelativeIntersectionPoint(Vector2D *intersection) {
     Vector3D u = sphericalToCartesian(0, (currLocation.yaw > 180 ? currLocation.yaw - 90 : currLocation.yaw + 90));
 
     // TODO: implement windshield angle using similar principle with this vector
-    Vector3D v = {0.0, 1.0, 0.0};                   // Vector representing height direction in meters
+    Vector3D v = crossProduct(u, planeNormal);                   // Vector representing height direction in meters
    
     HAL_Debug_Printf("[Solar]: Windshield Center is (X,Y,Z): %f %f %f, Heading %F\n",
                      rectangleCenter.x, rectangleCenter.y, rectangleCenter.z,
